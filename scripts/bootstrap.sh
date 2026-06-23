@@ -19,7 +19,7 @@ install_if_missing() {
   if command -v "$bin" >/dev/null 2>&1; then
     info "$bin already installed"
   else
-    info "Installing $formula…"
+    info "Installing ${formula}..."
     brew install "$formula"
   fi
 }
