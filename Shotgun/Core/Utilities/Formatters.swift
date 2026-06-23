@@ -3,7 +3,9 @@ import Foundation
 extension ISO8601DateFormatter {
     /// Formatter matching how Postgres timestamptz values are serialized, used
     /// when passing dates as filter values in PostgREST queries.
-    static let supabase: ISO8601DateFormatter = {
+    /// Safe to share: configured once, then only read (Foundation formatters are
+    /// thread-safe for formatting).
+    nonisolated(unsafe) static let supabase: ISO8601DateFormatter = {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         return formatter
