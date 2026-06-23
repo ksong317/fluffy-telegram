@@ -34,13 +34,13 @@ create table public.friendships (
   status        friendship_status not null default 'pending',
   created_at    timestamptz not null default now(),
   -- No self-friendship.
-  constraint friendship_distinct check (requester_id <> addressee_id),
-  -- One relationship per unordered pair (least/greatest normalizes direction).
-  constraint friendship_unique_pair unique (
-    least(requester_id, addressee_id),
-    greatest(requester_id, addressee_id)
-  )
+  constraint friendship_distinct check (requester_id <> addressee_id)
 );
+
+-- One relationship per unordered pair (least/greatest normalizes direction).
+-- Expression uniqueness must be a unique index, not a UNIQUE table constraint.
+create unique index friendship_unique_pair
+  on public.friendships (least(requester_id, addressee_id), greatest(requester_id, addressee_id));
 
 create index friendships_requester_idx on public.friendships (requester_id);
 create index friendships_addressee_idx on public.friendships (addressee_id);
