@@ -1,0 +1,43 @@
+# Supabase local dev config. `supabase start` reads this.
+# Full reference: https://supabase.com/docs/guides/cli/config
+
+project_id = "shotgun"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323
+
+[auth]
+enabled = true
+site_url = "shotgun://auth-callback"
+additional_redirect_urls = ["shotgun://auth-callback"]
+jwt_expiry = 3600
+enable_signup = true
+
+# Phone auth (OTP). Provider + Twilio creds are configured in the hosted
+# dashboard for production; this block enables it for local testing.
+[auth.sms]
+enable_signup = true
+enable_confirmations = true
+
+# Sign in with Apple — configure the Service ID + key in the hosted dashboard.
+[auth.external.apple]
+enabled = true
+client_id = "env(SUPABASE_AUTH_APPLE_CLIENT_ID)"
+secret = "env(SUPABASE_AUTH_APPLE_SECRET)"
+
+[storage]
+enabled = true
+# Bucket for profile photos is created in migration 0004.

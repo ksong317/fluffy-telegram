@@ -1,0 +1,44 @@
+# ---- Secrets ----
+# Real config lives here; only the .example is committed.
+Config/Secrets.xcconfig
+*.env
+.env*
+
+# ---- XcodeGen output ----
+# The project is generated from project.yml; don't commit it. Run `make generate`.
+*.xcodeproj
+*.xcworkspace
+
+# ---- Xcode ----
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+DerivedData/
+build/
+*.moved-aside
+*.pbxuser
+!default.pbxuser
+*.perspectivev3
+!default.perspectivev3
+
+# ---- Swift Package Manager ----
+.build/
+.swiftpm/
+Packages/
+Package.resolved
+
+# ---- macOS ----
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+
+# ---- Fastlane / tooling ----
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output
+
+# ---- Supabase CLI ----
+supabase/.branches
+supabase/.temp
