@@ -1,0 +1,79 @@
+# XcodeGen spec — the source of truth for the Xcode project.
+# Regenerate Shotgun.xcodeproj with `make generate` (never edit the .xcodeproj by hand).
+# Docs: https://github.com/yonaskolb/XcodeGen
+
+name: Shotgun
+
+options:
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+  groupSortPosition: top
+  generateEmptyDirectories: true
+  minimumXcodeGenVersion: "2.38.0"
+
+# Shared Supabase config (SUPABASE_URL / SUPABASE_ANON_KEY / APP_BUNDLE_ID_PREFIX).
+# Applied to all targets so Info.plist variable substitution works.
+configFiles:
+  Debug: Config/Secrets.xcconfig
+  Release: Config/Secrets.xcconfig
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"          # Swift 6 language mode (complete concurrency checking)
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    # DEVELOPMENT_TEAM: ABCDE12345   # set your Apple Developer team here or in Xcode
+
+packages:
+  Supabase:
+    url: https://github.com/supabase/supabase-swift
+    from: "2.0.0"
+
+targets:
+  Shotgun:
+    type: application
+    platform: iOS
+    sources:
+      - path: Shotgun
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(APP_BUNDLE_ID_PREFIX).shotgun
+        INFOPLIST_FILE: Shotgun/Resources/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Shotgun/Resources/Shotgun.entitlements
+        GENERATE_INFOPLIST_FILE: NO
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        TARGETED_DEVICE_FAMILY: "1"   # iPhone only for MVP
+        SWIFT_EMIT_LOC_STRINGS: YES
+    dependencies:
+      - package: Supabase
+        product: Supabase
+
+  ShotgunTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: ShotgunTests
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(APP_BUNDLE_ID_PREFIX).shotgun.tests
+        GENERATE_INFOPLIST_FILE: YES
+    dependencies:
+      - target: Shotgun
+
+schemes:
+  Shotgun:
+    build:
+      targets:
+        Shotgun: all
+        ShotgunTests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - ShotgunTests
+    archive:
+      config: Release
