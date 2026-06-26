@@ -14,7 +14,8 @@ struct FriendsService: Sendable {
     /// All friendships involving the current user (accepted + pending).
     /// RLS already scopes this to rows where the user is requester or addressee.
     func fetchFriendships() async throws -> [Friendship] {
-        try await client
+        if DemoMode.isEnabled { return await DemoStore.shared.allFriendships() }
+        return try await client
             .from("friendships")
             .select()
             .order("created_at", ascending: false)
@@ -23,11 +24,13 @@ struct FriendsService: Sendable {
     }
 
     func sendRequest(from me: UUID, to other: UUID) async throws {
+        if DemoMode.isEnabled { return await DemoStore.shared.sendRequest(from: me, to: other) }
         let payload = NewFriendship(requesterID: me, addresseeID: other)
         try await client.from("friendships").insert(payload).execute()
     }
 
     func accept(friendshipID: UUID) async throws {
+        if DemoMode.isEnabled { return await DemoStore.shared.accept(friendshipID: friendshipID) }
         try await client
             .from("friendships")
             .update(["status": FriendshipStatus.accepted.rawValue])
@@ -36,6 +39,7 @@ struct FriendsService: Sendable {
     }
 
     func remove(friendshipID: UUID) async throws {
+        if DemoMode.isEnabled { return await DemoStore.shared.remove(friendshipID: friendshipID) }
         try await client
             .from("friendships")
             .delete()
@@ -47,6 +51,7 @@ struct FriendsService: Sendable {
 
     /// The current user's close-friend ids.
     func fetchCloseFriendIDs() async throws -> Set<UUID> {
+        if DemoMode.isEnabled { return await DemoStore.shared.closeFriends() }
         let links: [CloseFriendLink] = try await client
             .from("close_friends")
             .select()
@@ -56,6 +61,7 @@ struct FriendsService: Sendable {
     }
 
     func markClose(owner me: UUID, friend: UUID) async throws {
+        if DemoMode.isEnabled { return await DemoStore.shared.markClose(friend: friend) }
         let link = CloseFriendLink(ownerID: me, friendID: friend)
         try await client
             .from("close_friends")
@@ -64,6 +70,7 @@ struct FriendsService: Sendable {
     }
 
     func unmarkClose(owner me: UUID, friend: UUID) async throws {
+        if DemoMode.isEnabled { return await DemoStore.shared.unmarkClose(friend: friend) }
         try await client
             .from("close_friends")
             .delete()

@@ -1,15 +1,18 @@
 import Foundation
 import Observation
-import Supabase
 
-/// Root app state: owns the auth session and decides which top-level flow to show.
-/// Injected into the environment and observed by `RootView`.
+/// Root app state: owns the current user + profile and decides which top-level
+/// flow to show. Injected into the environment and observed by `RootView`.
+///
+/// Sign-in (phone OTP + Sign in with Apple) has been removed; the app runs in
+/// offline demo mode (`DemoMode`) and boots straight in as the demo user. To
+/// reintroduce authentication, restore a session-driven service plus a
+/// `.signedOut` phase that routes to a sign-in screen.
 @MainActor
 @Observable
 final class AppState {
     enum Phase: Equatable {
-        case loading        // checking for a restored session
-        case signedOut      // no session — show auth
+        case loading        // booting
         case needsProfile   // signed in, profile incomplete — show setup
         case ready          // signed in with a complete profile — show main app
     }
@@ -18,24 +21,11 @@ final class AppState {
     private(set) var currentUserID: UUID?
     private(set) var profile: Profile?
 
-    private let auth = AuthService()
     private let profiles = ProfileService()
 
-    /// Begin observing auth state. Call once from the app's root `.task`.
+    /// Boot the app. Call once from the app's root `.task`.
     func start() async {
-        for await change in auth.authStateChanges {
-            await handle(session: change.session)
-        }
-    }
-
-    private func handle(session: Session?) async {
-        guard let session else {
-            currentUserID = nil
-            profile = nil
-            phase = .signedOut
-            return
-        }
-        currentUserID = session.user.id
+        currentUserID = DemoData.me.id
         await refreshProfile()
     }
 
@@ -51,9 +41,5 @@ final class AppState {
             // Network/permission hiccup — fall back to setup rather than locking out.
             phase = .needsProfile
         }
-    }
-
-    func signOut() async {
-        try? await auth.signOut()
     }
 }

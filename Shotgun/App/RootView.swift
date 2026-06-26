@@ -8,8 +8,6 @@ struct RootView: View {
         switch appState.phase {
         case .loading:
             ProgressView("Loading…")
-        case .signedOut:
-            AuthView()
         case .needsProfile:
             ProfileSetupView()
         case .ready:

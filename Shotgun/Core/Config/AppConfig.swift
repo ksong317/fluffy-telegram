@@ -7,6 +7,9 @@ import Foundation
 /// and run `make generate`.
 enum AppConfig {
     static let supabaseURL: URL = {
+        // Demo mode never hits the network, so a placeholder keeps the app
+        // runnable without configured secrets.
+        if DemoMode.isEnabled { return URL(string: "https://demo.invalid")! }
         guard
             let raw = Bundle.main.object(forInfoDictionaryKey: "SUPABASE_URL") as? String,
             let url = URL(string: raw),
@@ -18,6 +21,7 @@ enum AppConfig {
     }()
 
     static let supabaseAnonKey: String = {
+        if DemoMode.isEnabled { return "demo-anon-key" }
         guard
             let key = Bundle.main.object(forInfoDictionaryKey: "SUPABASE_ANON_KEY") as? String,
             !key.isEmpty,
