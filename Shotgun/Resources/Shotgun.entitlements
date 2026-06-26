@@ -3,18 +3,17 @@
 <plist version="1.0">
 <dict>
 	<!--
-	  Sign in with Apple and Push Notifications are intentionally disabled here.
-	  Free / personal Apple Developer teams cannot sign apps that declare these
-	  capabilities. Re-add them once you've enrolled in the paid Apple Developer
-	  Program (needed for TestFlight anyway):
+	  No special capabilities are declared. Sign-in (phone OTP + Sign in with
+	  Apple) has been removed and the app runs in offline demo mode, so it builds
+	  and runs on a free / personal Apple Developer team.
+
+	  If you reintroduce auth or push later, re-add the relevant entitlements
+	  (requires the paid Apple Developer Program), e.g.:
 
 	    <key>com.apple.developer.applesignin</key>
 	    <array><string>Default</string></array>
 	    <key>aps-environment</key>
 	    <string>development</string>
-
-	  Until then, sign in with phone OTP (the Sign in with Apple button won't
-	  work on a free team).
 	-->
 </dict>
 </plist>

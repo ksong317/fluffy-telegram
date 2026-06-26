@@ -4,10 +4,10 @@ import Observation
 /// Root app state: owns the current user + profile and decides which top-level
 /// flow to show. Injected into the environment and observed by `RootView`.
 ///
-/// Auth is currently bypassed in favor of offline demo mode (`DemoMode`), so the
-/// app boots straight in as the demo user — there is no sign-in screen. The real
-/// session-driven flow lived in `AuthService.authStateChanges`; restore it here
-/// (and re-add a `.signedOut` phase) when re-enabling authentication.
+/// Sign-in (phone OTP + Sign in with Apple) has been removed; the app runs in
+/// offline demo mode (`DemoMode`) and boots straight in as the demo user. To
+/// reintroduce authentication, restore a session-driven service plus a
+/// `.signedOut` phase that routes to a sign-in screen.
 @MainActor
 @Observable
 final class AppState {
