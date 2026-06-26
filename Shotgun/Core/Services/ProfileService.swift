@@ -11,6 +11,7 @@ struct ProfileService: Sendable {
 
     /// Fetch a single profile, or nil if it doesn't exist yet.
     func fetch(id: UUID) async throws -> Profile? {
+        if DemoMode.isEnabled { return await DemoStore.shared.profile(id: id) }
         let rows: [Profile] = try await client
             .from("profiles")
             .select()
@@ -24,7 +25,8 @@ struct ProfileService: Sendable {
     /// Create or update the current user's profile (profile-setup screen).
     @discardableResult
     func upsert(_ payload: ProfileUpsert) async throws -> Profile {
-        try await client
+        if DemoMode.isEnabled { return await DemoStore.shared.upsert(payload) }
+        return try await client
             .from("profiles")
             .upsert(payload)
             .select()
@@ -37,6 +39,7 @@ struct ProfileService: Sendable {
     func search(query: String, excluding meID: UUID) async throws -> [Profile] {
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return [] }
+        if DemoMode.isEnabled { return await DemoStore.shared.search(query: trimmed, excluding: meID) }
 
         let rows: [Profile] = try await client
             .from("profiles")
@@ -52,6 +55,7 @@ struct ProfileService: Sendable {
     /// Fetch several profiles by id, e.g. to resolve a friend/participant list.
     func fetch(ids: [UUID]) async throws -> [Profile] {
         guard !ids.isEmpty else { return [] }
+        if DemoMode.isEnabled { return await DemoStore.shared.profiles(ids: ids) }
         let rows: [Profile] = try await client
             .from("profiles")
             .select()
