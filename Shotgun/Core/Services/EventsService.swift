@@ -15,8 +15,11 @@ struct EventsService: Sendable {
     /// the audience rules; we just filter to open, not-yet-closed events.
     func fetchFeed() async throws -> [Event] {
         if DemoMode.isEnabled { return await DemoStore.shared.feed() }
+        // `events_with_counts` rather than `events`: same rows under the same
+        // RLS (the view is security_invoker), plus participant_count, so the
+        // feed can show spots remaining without a query per row.
         return try await client
-            .from("events")
+            .from("events_with_counts")
             .select()
             .eq("status", value: EventStatus.open.rawValue)
             .gt("closes_at", value: ISO8601DateFormatter.supabase.string(from: Date()))

@@ -16,6 +16,11 @@ struct Event: Codable, Identifiable, Sendable, Hashable {
     var status: EventStatus
     var createdAt: Date
 
+    /// How many people have joined. Only present when the row came from the
+    /// `events_with_counts` view (the feed); nil when read straight from
+    /// `events`, where the column doesn't exist. Optional so both decode.
+    var participantCount: Int?
+
     enum CodingKeys: String, CodingKey {
         case id
         case hostID = "host_id"
@@ -30,10 +35,17 @@ struct Event: Codable, Identifiable, Sendable, Hashable {
         case note
         case status
         case createdAt = "created_at"
+        case participantCount = "participant_count"
     }
 
     var isActive: Bool {
         status == .open && closesAt > Date()
+    }
+
+    /// Seats still open, or nil when the count wasn't fetched. Callers should
+    /// fall back to showing capacity rather than guessing zero.
+    var spotsRemaining: Int? {
+        participantCount.map { max(0, capacity - $0) }
     }
 }
 
