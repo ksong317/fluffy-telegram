@@ -30,6 +30,15 @@ packages:
   Supabase:
     url: https://github.com/supabase/supabase-swift
     from: "2.0.0"
+  # Pinned below 1.12.0 on purpose. From 1.12.0 on, xctest-dynamic-overlay is a
+  # shim that re-exports `IssueReporting` from the renamed swift-issue-reporting
+  # package, so two packages vend a product of the same name. Xcode 16.x's build
+  # service registers the duplicate PIF GUID and crashes (SIGSEGV) before it ever
+  # compiles. Capping here keeps swift-issue-reporting out of the graph entirely.
+  xctest-dynamic-overlay:
+    url: https://github.com/pointfreeco/xctest-dynamic-overlay
+    minVersion: "1.2.2"
+    maxVersion: "1.12.0"
 
 targets:
   Shotgun:
