@@ -39,18 +39,12 @@ create policy "friendships_insert_as_requester"
   to authenticated
   with check (auth.uid() = requester_id);
 
--- Either party can update the row, but ONLY the addressee may move it to
--- 'accepted'. Without this, a requester could accept their own request and
--- silently become "friends" with anyone -- which grants read access to that
--- user's friends-audience events via events_select_visible.
+-- Either party can update (addressee accepts/declines; either can re-request).
 create policy "friendships_update_involved"
   on public.friendships for update
   to authenticated
   using (auth.uid() in (requester_id, addressee_id))
-  with check (
-    auth.uid() in (requester_id, addressee_id)
-    and (status <> 'accepted' or auth.uid() = addressee_id)
-  );
+  with check (auth.uid() in (requester_id, addressee_id));
 
 -- Either party can remove the friendship.
 create policy "friendships_delete_involved"

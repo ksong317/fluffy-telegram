@@ -16,10 +16,21 @@ struct AccountView: View {
                 }
                 // TODO: link to an edit-profile screen (reuse ProfileSetupView in edit mode).
 
-                Section {
-                    LabeledContent("Mode", value: "Demo")
-                } footer: {
-                    Text("Running in offline demo mode with sample data — no account is signed in and nothing is saved to a server.")
+                if DemoMode.isEnabled {
+                    Section {
+                        LabeledContent("Mode", value: "Demo")
+                    } footer: {
+                        Text("Running in offline demo mode with sample data — no account is signed in and nothing is saved to a server.")
+                    }
+                } else {
+                    Section {
+                        AsyncButton(role: .destructive) {
+                            dismiss()
+                            await appState.signOut()
+                        } label: {
+                            Text("Sign out")
+                        }
+                    }
                 }
             }
             .navigationTitle("Account")

@@ -3,12 +3,20 @@ import Foundation
 /// Toggles the app into **offline demo mode**: no auth, no Supabase, just
 /// seeded sample data served from an in-memory store.
 ///
-/// This exists so the app can be explored without a working backend (the phone
-/// OTP needs Twilio and Sign in with Apple needs a paid Apple team). Flip this
-/// to `false` to restore the real authenticated flow — the services fall back to
-/// their Supabase implementations automatically.
+/// Real Supabase auth is now the default. Demo mode remains because it's still
+/// the only way to exercise the UI with a full, deterministic social graph —
+/// useful for SwiftUI previews, UI tests, and demoing offline.
+///
+/// Opt in with the `-demoMode` launch argument (Xcode: Product → Scheme → Edit
+/// Scheme → Run → Arguments), or by setting `SHOTGUN_DEMO_MODE=1`.
 enum DemoMode {
-    static let isEnabled = true
+    static let isEnabled: Bool = {
+        let info = ProcessInfo.processInfo
+        if info.arguments.contains("-demoMode") { return true }
+        if info.environment["SHOTGUN_DEMO_MODE"] == "1" { return true }
+        // SwiftUI previews have no backend and no session to restore.
+        return info.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
+    }()
 }
 
 /// Stable identities and the seed graph for demo mode. Fixed UUIDs keep things
@@ -158,6 +166,14 @@ actor DemoStore {
         return events
             .filter { $0.status == .open && $0.closesAt > now }
             .sorted { $0.startsAt < $1.startsAt }
+            // Mirror the `events_with_counts` view the real feed reads from, so
+            // demo mode exercises the same "spots left" rendering rather than
+            // silently falling back to capacity.
+            .map { event in
+                var withCount = event
+                withCount.participantCount = participants.count { $0.eventID == event.id }
+                return withCount
+            }
     }
 
     func event(id: UUID) -> Event? { events.first { $0.id == id } }

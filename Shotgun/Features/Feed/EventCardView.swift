@@ -20,7 +20,7 @@ struct EventCardView: View {
 
             HStack(spacing: 12) {
                 Label(event.startsAt.timeLeftDescription, systemImage: "clock")
-                Label("\(event.capacity) spots", systemImage: "person.2")
+                Label(spotsText, systemImage: "person.2")
             }
             .font(.caption)
             .foregroundStyle(.secondary)
@@ -30,5 +30,15 @@ struct EventCardView: View {
                 .foregroundStyle(.tertiary)
         }
         .padding(.vertical, 4)
+    }
+
+    /// Prefers seats actually left. Falls back to capacity when the count is
+    /// missing (demo mode, or a row read straight from `events`) — an
+    /// unqualified "3 spots" is vague, but claiming "0 left" would be a lie.
+    private var spotsText: String {
+        guard let remaining = event.spotsRemaining else {
+            return "\(event.capacity) spots"
+        }
+        return remaining == 0 ? "Full" : "\(remaining) of \(event.capacity) left"
     }
 }
